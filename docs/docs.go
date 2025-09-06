@@ -315,9 +315,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "data": {},
-                "details": {
-                    "type": "string"
-                },
                 "error": {
                     "type": "string"
                 },
@@ -363,6 +360,9 @@ const docTemplate = `{
         "common.ValidationErrorResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "string"
+                },
                 "data": {},
                 "error": {
                     "type": "string"

@@ -1,9 +1,9 @@
 package database
 
 import (
-	"fmt"
 	"log"
 
+	"github.com/tinwritescode/myapp/internal/dto/common"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,7 +19,7 @@ func ConnectDB(dsn string) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %w", err)
+		return common.NewAppError(common.INTERNAL_SERVER_ERROR, "failed to connect to database", err)
 	}
 
 	log.Println("Database connected successfully")

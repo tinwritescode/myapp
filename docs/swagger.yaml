@@ -76,8 +76,6 @@ definitions:
       code:
         type: string
       data: {}
-      details:
-        type: string
       error:
         type: string
       message:
@@ -107,6 +105,8 @@ definitions:
     type: object
   common.ValidationErrorResponse:
     properties:
+      code:
+        type: string
       data: {}
       error:
         type: string

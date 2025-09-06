@@ -1,12 +1,12 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/tinwritescode/myapp/internal/database"
+	"github.com/tinwritescode/myapp/internal/dto/common"
 	"github.com/tinwritescode/myapp/internal/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -53,13 +53,13 @@ func GetUserService() UserService {
 func (s *userService) Register(email, username, password, fullName string) (*models.User, error) {
 	var existingUser models.User
 	if err := s.db.Where("email = ? OR username = ?", email, username).First(&existingUser).Error; err == nil {
-		return nil, errors.New("user with this email or username already exists")
+		return nil, common.NewAppError(common.EMAIL_ALREADY_USED, "user with this email or username already exists", nil)
 	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, errors.New("failed to process password")
+		return nil, common.NewAppError(common.INTERNAL_SERVER_ERROR, "failed to process password", err)
 	}
 
 	// Create user
@@ -72,7 +72,7 @@ func (s *userService) Register(email, username, password, fullName string) (*mod
 	}
 
 	if err := s.db.Create(&user).Error; err != nil {
-		return nil, errors.New("failed to create user")
+		return nil, common.NewAppError(common.INTERNAL_SERVER_ERROR, "failed to create user", err)
 	}
 
 	return &user, nil
@@ -81,20 +81,20 @@ func (s *userService) Register(email, username, password, fullName string) (*mod
 func (s *userService) Login(email, password string) (string, *models.User, error) {
 	var user models.User
 	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
-		return "", nil, errors.New("invalid credentials")
+		return "", nil, common.NewAppError(common.INVALID_CREDENTIALS, "invalid credentials", err)
 	}
 
 	if !user.IsActive {
-		return "", nil, errors.New("account is deactivated")
+		return "", nil, common.NewAppError(common.UNAUTHORIZED, "account is deactivated", nil)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return "", nil, errors.New("invalid credentials")
+		return "", nil, common.NewAppError(common.INVALID_CREDENTIALS, "invalid credentials", err)
 	}
 
 	token, err := s.generateJWT(&user)
 	if err != nil {
-		return "", nil, errors.New("failed to generate token")
+		return "", nil, common.NewAppError(common.INTERNAL_SERVER_ERROR, "failed to generate token", err)
 	}
 
 	return token, &user, nil
@@ -103,7 +103,7 @@ func (s *userService) Login(email, password string) (string, *models.User, error
 func (s *userService) GetUserByID(id uint) (*models.User, error) {
 	var user models.User
 	if err := s.db.First(&user, id).Error; err != nil {
-		return nil, errors.New("user not found")
+		return nil, common.NewAppError(common.USER_NOT_FOUND, "user not found", err)
 	}
 	return &user, nil
 }
@@ -111,7 +111,7 @@ func (s *userService) GetUserByID(id uint) (*models.User, error) {
 func (s *userService) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, errors.New("user not found")
+		return nil, common.NewAppError(common.USER_NOT_FOUND, "user not found", err)
 	}
 	return &user, nil
 }

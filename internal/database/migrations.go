@@ -1,22 +1,22 @@
 package database
 
 import (
-	"fmt"
 	"log"
+
+	"github.com/tinwritescode/myapp/internal/dto/common"
 )
 
 // AutoMigrate runs database migrations for all models
 func AutoMigrate(models ...interface{}) error {
 	if DB == nil {
-		return fmt.Errorf("database connection not initialized")
+		return common.NewAppError(common.INTERNAL_SERVER_ERROR, "database connection not initialized", nil)
 	}
 
 	err := DB.AutoMigrate(models...)
 	if err != nil {
-		return fmt.Errorf("failed to run migrations: %w", err)
+		return common.NewAppError(common.INTERNAL_SERVER_ERROR, "failed to run migrations", err)
 	}
 
 	log.Println("Database migrations completed successfully")
 	return nil
 }
-

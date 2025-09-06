@@ -39,7 +39,11 @@ func GetUsers(c *gin.Context) {
 	userService := getUserService()
 	users, total, err := userService.GetUsers(req.Page, req.Limit, &req.Search, req.IsActive, req.SortBy, req.SortDir)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, common.NewErrorResponse(err.Error()))
+		if appErr, ok := err.(*common.AppError); ok {
+			c.JSON(http.StatusInternalServerError, common.NewErrorResponseWithCode(appErr.Code, appErr.Message))
+		} else {
+			c.JSON(http.StatusInternalServerError, common.NewErrorResponse(err.Error()))
+		}
 		return
 	}
 
@@ -89,10 +93,17 @@ func Register(c *gin.Context) {
 	user, err := userService.Register(req.Email, req.Username, req.Password, req.FullName)
 	if err != nil {
 		statusCode := http.StatusInternalServerError
-		if err.Error() == "user with this email or username already exists" {
-			statusCode = http.StatusConflict
+		if appErr, ok := err.(*common.AppError); ok {
+			switch appErr.Code {
+			case common.EMAIL_ALREADY_USED:
+				statusCode = http.StatusConflict
+			case common.INTERNAL_SERVER_ERROR:
+				statusCode = http.StatusInternalServerError
+			}
+			c.JSON(statusCode, common.NewErrorResponseWithCode(appErr.Code, appErr.Message))
+		} else {
+			c.JSON(statusCode, common.NewErrorResponse(err.Error()))
 		}
-		c.JSON(statusCode, common.NewErrorResponse(err.Error()))
 		return
 	}
 
@@ -131,10 +142,17 @@ func Login(c *gin.Context) {
 	token, user, err := userService.Login(req.Email, req.Password)
 	if err != nil {
 		statusCode := http.StatusInternalServerError
-		if err.Error() == "invalid credentials" || err.Error() == "account is deactivated" {
-			statusCode = http.StatusUnauthorized
+		if appErr, ok := err.(*common.AppError); ok {
+			switch appErr.Code {
+			case common.INVALID_CREDENTIALS, common.UNAUTHORIZED:
+				statusCode = http.StatusUnauthorized
+			case common.INTERNAL_SERVER_ERROR:
+				statusCode = http.StatusInternalServerError
+			}
+			c.JSON(statusCode, common.NewErrorResponseWithCode(appErr.Code, appErr.Message))
+		} else {
+			c.JSON(statusCode, common.NewErrorResponse(err.Error()))
 		}
-		c.JSON(statusCode, common.NewErrorResponse(err.Error()))
 		return
 	}
 
