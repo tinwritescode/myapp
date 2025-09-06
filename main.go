@@ -6,6 +6,7 @@ import (
 
 	"github.com/tinwritescode/myapp/internal/config"
 	"github.com/tinwritescode/myapp/internal/database"
+	"github.com/tinwritescode/myapp/internal/models"
 	"github.com/tinwritescode/myapp/internal/routes"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,11 @@ func main() {
 
 	if err := database.ConnectDB(dsn); err != nil {
 		log.Fatal("Failed to connect to database:", err)
+	}
+
+	// Run database migrations
+	if err := database.AutoMigrate(&models.User{}, &models.Account{}); err != nil {
+		log.Fatal("Failed to run migrations:", err)
 	}
 
 	// Setup Gin router

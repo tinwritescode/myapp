@@ -18,7 +18,8 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		v1.GET("/ping", handlers.Ping)
 		v1.GET("/users", handlers.GetUsers)
-		v1.POST("/users", handlers.CreateUser)
+		v1.POST("/auth/register", handlers.Register)
+		v1.POST("/auth/login", handlers.Login)
 	}
 
 }

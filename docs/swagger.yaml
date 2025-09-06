@@ -1,6 +1,226 @@
+definitions:
+  auth.LoginRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: password123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResponse:
+    properties:
+      expires_at:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/auth.UserInfo'
+    type: object
+  auth.RegisterRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      full_name:
+        example: John Doe
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+      username:
+        example: johndoe
+        maxLength: 20
+        minLength: 3
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    - username
+    type: object
+  auth.RegisterResponse:
+    properties:
+      user:
+        $ref: '#/definitions/auth.UserInfo'
+    type: object
+  auth.UserInfo:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      full_name:
+        example: John Doe
+        type: string
+      id:
+        example: 1
+        type: integer
+      is_active:
+        example: true
+        type: boolean
+      username:
+        example: johndoe
+        type: string
+    type: object
+  common.ErrorResponse:
+    properties:
+      code:
+        type: string
+      data: {}
+      details:
+        type: string
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  common.Pagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  common.ValidationError:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+      value:
+        type: string
+    type: object
+  common.ValidationErrorResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+      validation_errors:
+        items:
+          $ref: '#/definitions/common.ValidationError'
+        type: array
+    type: object
+  user.GetUsersResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/user.UserResponse'
+        type: array
+      error:
+        type: string
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/common.Pagination'
+      success:
+        type: boolean
+    type: object
+  user.UserResponse:
+    properties:
+      created_at:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      full_name:
+        example: John Doe
+        type: string
+      id:
+        example: 1
+        type: integer
+      is_active:
+        example: true
+        type: boolean
+      updated_at:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
 info:
   contact: {}
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ValidationErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Register user
+      tags:
+      - auth
   /ping:
     get:
       consumes:
@@ -22,30 +242,50 @@ paths:
       consumes:
       - application/json
       description: Get users
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - default: created_at
+        description: Sort field
+        in: query
+        name: sort_by
+        type: string
+      - default: desc
+        description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort_dir
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
-      summary: Get users
-      tags:
-      - users
-    post:
-      consumes:
-      - application/json
-      description: Create user
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
+            $ref: '#/definitions/user.GetUsersResponse'
+        "400":
+          description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
-      summary: Create user
+            $ref: '#/definitions/common.ValidationErrorResponse'
+      summary: Get users
       tags:
       - users
 swagger: "2.0"

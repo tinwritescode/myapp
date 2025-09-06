@@ -1,0 +1,161 @@
+package service
+
+import (
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/tinwritescode/myapp/internal/database"
+	"github.com/tinwritescode/myapp/internal/models"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
+type UserService interface {
+	Register(email, username, password, fullName string) (*models.User, error)
+	Login(email, password string) (string, *models.User, error)
+	GetUserByID(id uint) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
+	GetUsers(page, limit int, search *string, isActive *bool, sortBy, sortDir string) ([]models.User, int64, error)
+}
+
+type userService struct {
+	db *gorm.DB
+}
+
+var jwtSecret = []byte("your-secret-key")
+
+type Claims struct {
+	UserID   uint   `json:"user_id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
+
+var (
+	userServiceInstance UserService
+)
+
+func NewUserService() UserService {
+	return &userService{
+		db: database.GetDB(),
+	}
+}
+
+func GetUserService() UserService {
+	if userServiceInstance == nil {
+		userServiceInstance = NewUserService()
+	}
+	return userServiceInstance
+}
+
+func (s *userService) Register(email, username, password, fullName string) (*models.User, error) {
+	var existingUser models.User
+	if err := s.db.Where("email = ? OR username = ?", email, username).First(&existingUser).Error; err == nil {
+		return nil, errors.New("user with this email or username already exists")
+	}
+
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, errors.New("failed to process password")
+	}
+
+	// Create user
+	user := models.User{
+		Email:    email,
+		Username: username,
+		Password: string(hashedPassword),
+		FullName: fullName,
+		IsActive: true,
+	}
+
+	if err := s.db.Create(&user).Error; err != nil {
+		return nil, errors.New("failed to create user")
+	}
+
+	return &user, nil
+}
+
+func (s *userService) Login(email, password string) (string, *models.User, error) {
+	var user models.User
+	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return "", nil, errors.New("invalid credentials")
+	}
+
+	if !user.IsActive {
+		return "", nil, errors.New("account is deactivated")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return "", nil, errors.New("invalid credentials")
+	}
+
+	token, err := s.generateJWT(&user)
+	if err != nil {
+		return "", nil, errors.New("failed to generate token")
+	}
+
+	return token, &user, nil
+}
+
+func (s *userService) GetUserByID(id uint) (*models.User, error) {
+	var user models.User
+	if err := s.db.First(&user, id).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+	return &user, nil
+}
+
+func (s *userService) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+	return &user, nil
+}
+
+func (s *userService) generateJWT(user *models.User) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claims := &Claims{
+		UserID:   user.ID,
+		Email:    user.Email,
+		Username: user.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
+}
+
+func (s *userService) GetUsers(page, limit int, search *string, isActive *bool, sortBy, sortDir string) ([]models.User, int64, error) {
+	var users []models.User
+	var total int64
+	query := s.db
+
+	if isActive != nil {
+		query = query.Where("is_active = ?", *isActive)
+	}
+
+	if search != nil && *search != "" {
+		query = query.Where("email LIKE ? OR username LIKE ?", "%"+*search+"%", "%"+*search+"%")
+	}
+
+	// Count total records
+	if err := query.Model(&models.User{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated results
+	if err := query.Order(fmt.Sprintf("%s %s", sortBy, sortDir)).
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+	return users, total, nil
+}
