@@ -1,0 +1,48 @@
+@email = tin@secondtalent.com
+@password = aimabiet
+@username = admin
+@fullName = Admin User
+
+### Register new user
+POST {{baseUrl}}/api/{{apiVersion}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "email": "newuser@example.com",
+    "username": "newuser",
+    "password": "password123",
+    "full_name": "New User"
+}
+
+### Register user with existing email
+POST {{baseUrl}}/api/{{apiVersion}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "email": "{{email}}",
+    "username": "existinguser",
+    "password": "password123",
+    "full_name": "Existing User"
+}
+
+### Register user with existing username
+POST {{baseUrl}}/api/{{apiVersion}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "email": "another@example.com",
+    "username": "{{username}}",
+    "password": "password123",
+    "full_name": "Another User"
+}
+
+### Register with invalid data
+POST {{baseUrl}}/api/{{apiVersion}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "email": "invalid-email",
+    "username": "",
+    "password": "123",
+    "full_name": ""
+}

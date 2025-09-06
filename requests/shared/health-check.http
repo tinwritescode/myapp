@@ -1,0 +1,5 @@
+### Health Check - Ping
+GET {{baseUrl}}/api/{{apiVersion}}/ping
+
+### Swagger Documentation
+GET {{baseUrl}}/swagger/index.html

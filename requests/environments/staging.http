@@ -1,0 +1,7 @@
+@baseUrl = https://staging-api.example.com
+@apiVersion = v1
+@contentType = application/json
+@email = staging@example.com
+@password = staging123
+@username = staging
+@fullName = Staging User

@@ -1,0 +1,35 @@
+@email = tin@secondtalent.com
+@password = aimabiet
+
+### Login User
+POST {{baseUrl}}/api/{{apiVersion}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+> {%
+    client.global.set("authToken", response.body.token);
+    client.global.set("userId", response.body.user.id);
+    client.global.set("userEmail", response.body.user.email);
+%}
+
+### Login with different user
+POST {{baseUrl}}/api/{{apiVersion}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "user@example.com",
+    "password": "password123"
+}
+
+### Login with invalid credentials
+POST {{baseUrl}}/api/{{apiVersion}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "invalid@example.com",
+    "password": "wrongpassword"
+}

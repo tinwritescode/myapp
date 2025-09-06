@@ -1,0 +1,8 @@
+@baseUrl = https://api.example.com
+@apiVersion = v1
+@contentType = application/json
+@email = prod@example.com
+@password = prod123
+@username = prod
+@fullName = Production User
+

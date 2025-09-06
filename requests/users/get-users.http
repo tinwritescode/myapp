@@ -1,0 +1,26 @@
+### Get all users (default pagination)
+GET {{baseUrl}}/api/{{apiVersion}}/users
+Authorization: Bearer {{authToken}}
+
+### Get users with pagination
+GET {{baseUrl}}/api/{{apiVersion}}/users?page=1&limit=5
+Authorization: Bearer {{authToken}}
+
+### Get users with search
+GET {{baseUrl}}/api/{{apiVersion}}/users?search=admin
+Authorization: Bearer {{authToken}}
+
+### Get users with active filter
+GET {{baseUrl}}/api/{{apiVersion}}/users?is_active=true
+Authorization: Bearer {{authToken}}
+
+### Get users with sorting
+GET {{baseUrl}}/api/{{apiVersion}}/users?sort_by=created_at&sort_dir=asc
+Authorization: Bearer {{authToken}}
+
+### Get users with all filters
+GET {{baseUrl}}/api/{{apiVersion}}/users?page=1&limit=10&search=user&is_active=true&sort_by=email&sort_dir=asc
+Authorization: Bearer {{authToken}}
+
+### Get users without authentication (should fail)
+GET {{baseUrl}}/api/{{apiVersion}}/users
