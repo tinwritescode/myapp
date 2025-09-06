@@ -1,12 +1,11 @@
 package database
 
 import (
-	"log"
-
 	"github.com/tinwritescode/myapp/internal/dto/common"
+	"github.com/tinwritescode/myapp/pkg/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -15,14 +14,14 @@ func ConnectDB(dsn string) error {
 	var err error
 
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: gormLogger.Default.LogMode(gormLogger.Info),
 	})
 
 	if err != nil {
 		return common.NewAppError(common.INTERNAL_SERVER_ERROR, "failed to connect to database", err)
 	}
 
-	log.Println("Database connected successfully")
+	logger.Info("Database connected successfully")
 	return nil
 }
 

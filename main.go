@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/tinwritescode/myapp/internal/config"
 	"github.com/tinwritescode/myapp/internal/database"
 	"github.com/tinwritescode/myapp/internal/models"
 	"github.com/tinwritescode/myapp/internal/routes"
+	"github.com/tinwritescode/myapp/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,12 +26,12 @@ func main() {
 	)
 
 	if err := database.ConnectDB(dsn); err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		logger.Fatal("Failed to connect to database:", err)
 	}
 
 	// Run database migrations
 	if err := database.AutoMigrate(&models.User{}, &models.Account{}); err != nil {
-		log.Fatal("Failed to run migrations:", err)
+		logger.Fatal("Failed to run migrations:", err)
 	}
 
 	// Setup Gin router
@@ -42,8 +42,8 @@ func main() {
 
 	// Start server
 	port := ":" + cfg.Server.Port
-	log.Printf("Server starting on port %s", port)
+	logger.Infof("Server starting on port %s", port)
 	if err := r.Run(port); err != nil {
-		log.Fatal("Failed to start server:", err)
+		logger.Fatal("Failed to start server:", err)
 	}
 }

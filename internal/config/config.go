@@ -1,10 +1,10 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/tinwritescode/myapp/pkg/logger"
 )
 
 type Config struct {
@@ -26,7 +26,7 @@ type ServerConfig struct {
 
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables or defaults")
+		logger.Info("No .env file found, using environment variables or defaults")
 	}
 
 	return &Config{
