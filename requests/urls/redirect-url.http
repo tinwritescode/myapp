@@ -1,0 +1,5 @@
+### Redirect to original URL (no authentication required)
+GET http://localhost:8080/abc123
+
+### Redirect with invalid short code
+GET http://localhost:8080/invalid

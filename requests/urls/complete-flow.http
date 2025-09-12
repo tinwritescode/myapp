@@ -1,0 +1,63 @@
+### Complete URL Shortener Flow with Authentication
+
+### 1. Register a new user
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "username": "testuser",
+  "password": "password123",
+  "full_name": "Test User"
+}
+
+### 2. Login to get JWT token
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 3. Create a short URL (replace YOUR_JWT_TOKEN_HERE with token from step 2)
+POST http://localhost:8080/api/v1/urls
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "original_url": "https://example.com/very/long/url/that/needs/to/be/shortened",
+  "short_code": "test123"
+}
+
+### 4. Get all URLs for the user
+GET http://localhost:8080/api/v1/urls?page=1&limit=10
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### 5. Get specific URL by ID (replace 1 with actual URL ID from step 3)
+GET http://localhost:8080/api/v1/urls/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### 6. Update URL (replace 1 with actual URL ID)
+PUT http://localhost:8080/api/v1/urls/1
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "original_url": "https://example.com/updated/url",
+  "is_active": true
+}
+
+### 7. Get URL statistics
+GET http://localhost:8080/api/v1/urls/1/stats
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### 8. Redirect to original URL (no authentication required)
+GET http://localhost:8080/test123
+
+### 9. Delete URL (replace 1 with actual URL ID)
+DELETE http://localhost:8080/api/v1/urls/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### 10. Test unauthorized access (should fail)
+GET http://localhost:8080/api/v1/urls

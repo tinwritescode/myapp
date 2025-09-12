@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/tinwritescode/myapp/internal/dto/url"
 	"github.com/tinwritescode/myapp/internal/dto/user"
 	"gorm.io/gorm"
 )
@@ -43,4 +44,29 @@ type Account struct {
 	Balance     int64  `gorm:"default:0" json:"balance"`
 	Currency    string `gorm:"default:'USD'" json:"currency"`
 	IsActive    bool   `gorm:"default:true" json:"is_active"`
+}
+
+type URL struct {
+	BaseModel
+	OriginalURL string     `gorm:"not null" json:"original_url"`
+	ShortCode   string     `gorm:"uniqueIndex;not null" json:"short_code"`
+	UserID      *uint      `gorm:"index" json:"user_id,omitempty"`
+	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
+	ClickCount  int64      `gorm:"default:0" json:"click_count"`
+	IsActive    bool       `gorm:"default:true" json:"is_active"`
+}
+
+// ToResponse converts URL model to URLResponse DTO
+func (u *URL) ToResponse() url.URLResponse {
+	return url.URLResponse{
+		ID:          u.ID,
+		OriginalURL: u.OriginalURL,
+		ShortCode:   u.ShortCode,
+		UserID:      u.UserID,
+		ExpiresAt:   u.ExpiresAt,
+		ClickCount:  u.ClickCount,
+		IsActive:    u.IsActive,
+		CreatedAt:   u.CreatedAt,
+		UpdatedAt:   u.UpdatedAt,
+	}
 }

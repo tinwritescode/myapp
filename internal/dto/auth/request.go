@@ -14,11 +14,6 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required" example:"password123"`
 }
 
-// RefreshTokenRequest represents the request body for token refresh
-type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
-}
-
 // ChangePasswordRequest represents the request body for password change
 type ChangePasswordRequest struct {
 	CurrentPassword string `json:"current_password" binding:"required"`

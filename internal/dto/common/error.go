@@ -19,6 +19,9 @@ const (
 	NOT_FOUND
 	CONFLICT
 	TOO_MANY_REQUESTS
+	SHORT_CODE_ALREADY_EXISTS
+	URL_NOT_FOUND
+	URL_EXPIRED
 )
 
 // String returns the string representation of the error code
@@ -50,6 +53,12 @@ func (e ERROR_CODE) String() string {
 		return "CONFLICT"
 	case TOO_MANY_REQUESTS:
 		return "TOO_MANY_REQUESTS"
+	case SHORT_CODE_ALREADY_EXISTS:
+		return "SHORT_CODE_ALREADY_EXISTS"
+	case URL_NOT_FOUND:
+		return "URL_NOT_FOUND"
+	case URL_EXPIRED:
+		return "URL_EXPIRED"
 	default:
 		return "UNKNOWN_ERROR"
 	}

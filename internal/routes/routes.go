@@ -6,6 +6,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/tinwritescode/myapp/docs"
 	"github.com/tinwritescode/myapp/internal/handlers"
+	"github.com/tinwritescode/myapp/internal/middleware"
 )
 
 func SetupRoutes(r *gin.Engine) {
@@ -13,13 +14,29 @@ func SetupRoutes(r *gin.Engine) {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	// API v1 routes
-	v1 := r.Group("/api/v1")
+	// Public routes (no authentication required)
+	public := r.Group("/api/v1")
 	{
-		v1.GET("/ping", handlers.Ping)
-		v1.GET("/users", handlers.GetUsers)
-		v1.POST("/auth/register", handlers.Register)
-		v1.POST("/auth/login", handlers.Login)
+		public.GET("/ping", handlers.Ping)
+		public.POST("/auth/register", handlers.Register)
+		public.POST("/auth/login", handlers.Login)
+		public.POST("/auth/refresh", handlers.RefreshToken)
 	}
 
+	// Protected routes (authentication required)
+	protected := r.Group("/api/v1").Use(middleware.AuthMiddleware())
+	{
+		protected.GET("/users", handlers.GetUsers)
+
+		// URL routes
+		protected.POST("/urls", handlers.CreateURL)
+		protected.GET("/urls", handlers.GetURLs)
+		protected.GET("/urls/:id", handlers.GetURLByID)
+		protected.PUT("/urls/:id", handlers.UpdateURL)
+		protected.DELETE("/urls/:id", handlers.DeleteURL)
+		protected.GET("/urls/:id/stats", handlers.GetURLStats)
+	}
+
+	// URL redirection route (outside API group for shorter URLs)
+	r.GET("/:short_code", handlers.RedirectURL)
 }

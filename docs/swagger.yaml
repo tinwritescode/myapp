@@ -25,6 +25,28 @@ definitions:
       user:
         $ref: '#/definitions/auth.UserInfo'
     type: object
+  auth.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        example: a1b2c3d4e5f6...
+        type: string
+    required:
+    - refresh_token
+    type: object
+  auth.RefreshTokenResponse:
+    properties:
+      expires_at:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      refresh_token:
+        example: a1b2c3d4e5f6...
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/auth.UserInfo'
+    type: object
   auth.RegisterRequest:
     properties:
       email:
@@ -50,6 +72,15 @@ definitions:
     type: object
   auth.RegisterResponse:
     properties:
+      expires_at:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
       user:
         $ref: '#/definitions/auth.UserInfo'
     type: object
@@ -119,6 +150,186 @@ definitions:
           $ref: '#/definitions/common.ValidationError'
         type: array
     type: object
+  url.ClickEvent:
+    properties:
+      clicked_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      ip_address:
+        example: 192.168.1.1
+        type: string
+      referer:
+        example: https://google.com
+        type: string
+      url_id:
+        example: 1
+        type: integer
+      user_agent:
+        example: Mozilla/5.0...
+        type: string
+    type: object
+  url.CreateURLRequest:
+    properties:
+      expires_at:
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      original_url:
+        example: https://example.com/very/long/url
+        type: string
+      short_code:
+        example: abc123
+        type: string
+    required:
+    - original_url
+    type: object
+  url.CreateURLResponse:
+    properties:
+      data:
+        $ref: '#/definitions/url.URLResponse'
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  url.DeleteURLResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  url.GetURLResponse:
+    properties:
+      data:
+        $ref: '#/definitions/url.URLResponse'
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  url.GetURLsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/url.URLResponse'
+        type: array
+      error:
+        type: string
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/common.Pagination'
+      success:
+        type: boolean
+    type: object
+  url.URLResponse:
+    properties:
+      click_count:
+        example: 42
+        type: integer
+      created_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      expires_at:
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      is_active:
+        example: true
+        type: boolean
+      original_url:
+        example: https://example.com/very/long/url
+        type: string
+      short_code:
+        example: abc123
+        type: string
+      updated_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  url.URLStats:
+    properties:
+      click_count:
+        example: 42
+        type: integer
+      created_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      expires_at:
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      is_active:
+        example: true
+        type: boolean
+      original_url:
+        example: https://example.com/very/long/url
+        type: string
+      recent_clicks:
+        items:
+          $ref: '#/definitions/url.ClickEvent'
+        type: array
+      short_code:
+        example: abc123
+        type: string
+      updated_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  url.URLStatsResponse:
+    properties:
+      data:
+        $ref: '#/definitions/url.URLStats'
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  url.UpdateURLRequest:
+    properties:
+      expires_at:
+        example: "2024-12-31T23:59:59Z"
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      original_url:
+        example: https://example.com/updated/url
+        type: string
+    type: object
+  url.UpdateURLResponse:
+    properties:
+      data:
+        $ref: '#/definitions/url.URLResponse'
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   user.GetUsersResponse:
     properties:
       data:
@@ -161,6 +372,27 @@ definitions:
 info:
   contact: {}
 paths:
+  /{short_code}:
+    get:
+      description: Redirect to the original URL using short code
+      parameters:
+      - description: Short code
+        in: path
+        name: short_code
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Redirect to original URL
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Redirect to original URL
+      tags:
+      - urls
   /auth/login:
     post:
       consumes:
@@ -189,6 +421,36 @@ paths:
           schema:
             $ref: '#/definitions/common.ErrorResponse'
       summary: Login user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.RefreshTokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Refresh access token
       tags:
       - auth
   /auth/register:
@@ -237,6 +499,206 @@ paths:
       summary: Ping
       tags:
       - ping
+  /urls:
+    get:
+      consumes:
+      - application/json
+      description: Get URLs with pagination and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - default: created_at
+        description: Sort field
+        in: query
+        name: sort_by
+        type: string
+      - default: desc
+        description: Sort direction
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort_dir
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/url.GetURLsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ValidationErrorResponse'
+      summary: Get URLs
+      tags:
+      - urls
+    post:
+      consumes:
+      - application/json
+      description: Create a new short URL
+      parameters:
+      - description: URL creation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/url.CreateURLRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/url.CreateURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ValidationErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Create URL
+      tags:
+      - urls
+  /urls/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a URL
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/url.DeleteURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Delete URL
+      tags:
+      - urls
+    get:
+      consumes:
+      - application/json
+      description: Get a specific URL by ID
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/url.GetURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Get URL by ID
+      tags:
+      - urls
+    put:
+      consumes:
+      - application/json
+      description: Update a URL
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: URL update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/url.UpdateURLRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/url.UpdateURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ValidationErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Update URL
+      tags:
+      - urls
+  /urls/{id}/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics for a specific URL
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/url.URLStatsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ErrorResponse'
+      summary: Get URL statistics
+      tags:
+      - urls
   /users:
     get:
       consumes:

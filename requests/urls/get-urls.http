@@ -1,0 +1,10 @@
+### Get URLs (requires authentication)
+GET http://localhost:8080/api/v1/urls?page=1&limit=10
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get URLs with search
+GET http://localhost:8080/api/v1/urls?page=1&limit=10&search=example
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get URLs without authentication (should fail)
+GET http://localhost:8080/api/v1/urls?page=1&limit=10
