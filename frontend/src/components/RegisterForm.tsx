@@ -8,17 +8,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "@/hooks/useAuthStore";
 
 interface RegisterFormProps {
   onSuccess?: () => void;
-  onSwitchToLogin?: () => void;
 }
 
-export const RegisterForm = ({
-  onSuccess,
-  onSwitchToLogin,
-}: RegisterFormProps) => {
+export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -182,16 +179,17 @@ export const RegisterForm = ({
 
           <Text fontSize="sm" textAlign="center" mt={2}>
             Already have an account?{" "}
-            <Button
-              variant="ghost"
-              colorPalette="blue"
-              onClick={onSwitchToLogin}
-              p={0}
-              h="auto"
-              fontSize="sm"
-            >
-              Sign in
-            </Button>
+            <Link to="/login">
+              <Button
+                variant="ghost"
+                colorPalette="blue"
+                p={0}
+                h="auto"
+                fontSize="sm"
+              >
+                Sign in
+              </Button>
+            </Link>
           </Text>
         </VStack>
       </form>

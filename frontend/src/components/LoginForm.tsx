@@ -8,17 +8,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "@/hooks/useAuthStore";
 
 interface LoginFormProps {
   onSuccess?: () => void;
-  onSwitchToRegister?: () => void;
 }
 
-export const LoginForm = ({
-  onSuccess,
-  onSwitchToRegister,
-}: LoginFormProps) => {
+export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -121,16 +118,17 @@ export const LoginForm = ({
 
           <Text fontSize="sm" textAlign="center" mt={2}>
             Don't have an account?{" "}
-            <Button
-              variant="ghost"
-              colorPalette="blue"
-              onClick={onSwitchToRegister}
-              p={0}
-              h="auto"
-              fontSize="sm"
-            >
-              Sign up
-            </Button>
+            <Link to="/register">
+              <Button
+                variant="ghost"
+                colorPalette="blue"
+                p={0}
+                h="auto"
+                fontSize="sm"
+              >
+                Sign up
+              </Button>
+            </Link>
           </Text>
         </VStack>
       </form>

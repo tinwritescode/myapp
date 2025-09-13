@@ -1,34 +1,34 @@
-import { Box, Button, Heading, Text, VStack } from "@chakra-ui/react";
-import { useState } from "react";
+import { Box } from "@chakra-ui/react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { LoginForm } from "./components/LoginForm";
 import { RegisterForm } from "./components/RegisterForm";
+import { URLManager } from "./components/URLManager";
+import { URLShortener } from "./components/URLShortener";
 import { useAuthStore } from "./hooks/useAuthStore";
 
 function App() {
-  const { isLoggedIn, user, logout } = useAuthStore();
-  const [isLoginMode, setIsLoginMode] = useState(true);
-
-  const handleSwitchToRegister = () => setIsLoginMode(false);
-  const handleSwitchToLogin = () => setIsLoginMode(true);
+  const { isLoggedIn } = useAuthStore();
 
   return (
-    <Box minH="100vh" bg="gray.50" pt={8}>
+    <Box minH="100vh">
       {isLoggedIn ? (
-        <Box p={8}>
-          <VStack gap={4} align="center">
-            <Heading size="lg">Welcome back!</Heading>
-            <Text>You are logged in as: {user?.email}</Text>
-            <Text>Full name: {user?.full_name}</Text>
-            <Text>Username: {user?.username}</Text>
-            <Button colorPalette="red" onClick={logout}>
-              Logout
-            </Button>
-          </VStack>
+        <Box>
+          {/* Main Content */}
+          <Routes>
+            <Route path="/" element={<Navigate to="/shorten" replace />} />
+            <Route path="/shorten" element={<URLShortener />} />
+            <Route path="/manage" element={<URLManager />} />
+          </Routes>
         </Box>
-      ) : isLoginMode ? (
-        <LoginForm onSwitchToRegister={handleSwitchToRegister} />
       ) : (
-        <RegisterForm onSwitchToLogin={handleSwitchToLogin} />
+        <Box pt={8}>
+          <Routes>
+            <Route path="/" element={<LoginForm />} />
+            <Route path="/login" element={<LoginForm />} />
+            <Route path="/register" element={<RegisterForm />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </Box>
       )}
     </Box>
   );

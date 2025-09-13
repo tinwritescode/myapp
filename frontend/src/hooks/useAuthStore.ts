@@ -46,7 +46,7 @@ const computed = createComputed<AuthStore, AuthStoreComputed>((state) => ({
   isLoggedIn: !!state.accessToken,
 }));
 
-const authStore = create<AuthStore>()(
+export const authStore = create<AuthStore>()(
   computed(
     persist(
       (set, get) => ({
@@ -105,7 +105,8 @@ const authStore = create<AuthStore>()(
               user,
             });
             return true;
-          } catch (error) {
+          } catch (error: unknown) {
+            console.error("Token refresh failed:", error);
             // Refresh failed, logout user
             set({
               accessToken: null,

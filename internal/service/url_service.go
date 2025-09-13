@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/tinwritescode/myapp/internal/database"
@@ -100,6 +101,10 @@ func (s *urlService) CreateURL(originalURL string, shortCode *string, userID *ui
 	}
 
 	if err := s.db.Create(&url).Error; err != nil {
+		if strings.Contains(err.Error(), "duplicate key value violates unique constraint \"idx_urls_short_code\"") {
+			return nil, common.NewAppError(common.SHORT_CODE_ALREADY_EXISTS, "Short code already exists", err)
+		}
+
 		return nil, common.NewAppError(common.INTERNAL_SERVER_ERROR, "Failed to create URL", err)
 	}
 

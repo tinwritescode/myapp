@@ -56,6 +56,47 @@ func CreateURL(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
+// @Summary Create Public URL
+// @Description Create a new short URL without authentication
+// @Tags urls
+// @Accept json
+// @Produce json
+// @Param request body url.CreateURLRequest true "URL creation details"
+// @Success 201 {object} url.CreateURLResponse
+// @Failure 400 {object} common.ValidationErrorResponse
+// @Failure 409 {object} common.ErrorResponse
+// @Router /urls/public [post]
+func CreatePublicURL(c *gin.Context) {
+	var req url.CreateURLRequest
+	if !middleware.BindJSON(c, &req) {
+		return
+	}
+
+	// Get user ID from context if authenticated
+	var userID *uint
+	if uid, exists := middleware.GetUserID(c); exists {
+		userID = &uid
+	}
+
+	// Create URL with user ID if authenticated, otherwise public
+	urlService := getURLService()
+	createdURL, err := urlService.CreateURL(req.OriginalURL, req.ShortCode, userID, req.ExpiresAt)
+	if err != nil {
+		handleURLError(c, err)
+		return
+	}
+
+	response := url.CreateURLResponse{
+		BaseResponse: common.BaseResponse{
+			Success: true,
+			Message: "URL created successfully",
+		},
+		Data: createdURL.ToResponse(),
+	}
+
+	c.JSON(http.StatusCreated, response)
+}
+
 // @Summary Get URLs
 // @Description Get URLs with pagination and filtering
 // @Tags urls

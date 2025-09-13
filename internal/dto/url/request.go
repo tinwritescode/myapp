@@ -5,7 +5,7 @@ import "time"
 // CreateURLRequest represents the request to create a new URL
 type CreateURLRequest struct {
 	OriginalURL string     `json:"original_url" binding:"required,url" example:"https://example.com/very/long/url"`
-	ShortCode   *string    `json:"short_code,omitempty" binding:"omitempty,alphanum,len=6,8" example:"abc123"`
+	ShortCode   *string    `json:"short_code,omitempty" binding:"omitempty,alphanum,min=3,max=8" example:"abc123"`
 	ExpiresAt   *time.Time `json:"expires_at,omitempty" example:"2024-12-31T23:59:59Z"`
 }
 
@@ -28,5 +28,5 @@ type UpdateURLRequest struct {
 
 // RedirectRequest represents the request for URL redirection
 type RedirectRequest struct {
-	ShortCode string `uri:"short_code" binding:"required,alphanum,len=6,8" example:"abc123"`
+	ShortCode string `uri:"short_code" binding:"required,alphanum" example:"abc123"`
 }

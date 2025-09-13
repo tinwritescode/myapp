@@ -16,7 +16,7 @@ const (
 	// MaxShortCodeLength is the maximum length for custom short codes
 	MaxShortCodeLength = 8
 	// MinShortCodeLength is the minimum length for short codes
-	MinShortCodeLength = 6
+	MinShortCodeLength = 3
 )
 
 // GenerateShortCode generates a random short code of specified length

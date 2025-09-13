@@ -23,11 +23,15 @@ func SetupRoutes(r *gin.Engine) {
 		public.POST("/auth/refresh", handlers.RefreshToken)
 	}
 
+	// Public routes with optional authentication
+	publicOptional := r.Group("/api/v1").Use(middleware.OptionalAuthMiddleware())
+	{
+		publicOptional.POST("/urls/public", handlers.CreatePublicURL)
+	}
+
 	// Protected routes (authentication required)
 	protected := r.Group("/api/v1").Use(middleware.AuthMiddleware())
 	{
-		protected.GET("/users", handlers.GetUsers)
-
 		// URL routes
 		protected.POST("/urls", handlers.CreateURL)
 		protected.GET("/urls", handlers.GetURLs)

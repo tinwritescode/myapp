@@ -3,7 +3,6 @@ package service
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -21,7 +20,6 @@ type UserService interface {
 	RevokeRefreshToken(refreshToken string) error
 	GetUserByID(id uint) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
-	GetUsers(page, limit int, search *string, isActive *bool, sortBy, sortDir string) ([]models.User, int64, error)
 }
 
 type userService struct {
@@ -188,34 +186,6 @@ func (s *userService) generateJWT(user *models.User) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
-}
-
-func (s *userService) GetUsers(page, limit int, search *string, isActive *bool, sortBy, sortDir string) ([]models.User, int64, error) {
-	var users []models.User
-	var total int64
-	query := s.db
-
-	if isActive != nil {
-		query = query.Where("is_active = ?", *isActive)
-	}
-
-	if search != nil && *search != "" {
-		query = query.Where("email LIKE ? OR username LIKE ?", "%"+*search+"%", "%"+*search+"%")
-	}
-
-	// Count total records
-	if err := query.Model(&models.User{}).Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	// Get paginated results
-	if err := query.Order(fmt.Sprintf("%s %s", sortBy, sortDir)).
-		Offset((page - 1) * limit).
-		Limit(limit).
-		Find(&users).Error; err != nil {
-		return nil, 0, err
-	}
-	return users, total, nil
 }
 
 // RefreshToken validates a refresh token and returns new access and refresh tokens

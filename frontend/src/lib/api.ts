@@ -1,4 +1,5 @@
 import axios from "axios";
+import { authStore } from "@/hooks/useAuthStore";
 
 // Create axios instance
 export const api = axios.create({
@@ -9,11 +10,8 @@ export const api = axios.create({
 });
 
 // Function to get auth store instance
-const getAuthStore = (): ReturnType<typeof useAuthStore> => {
-  // Import dynamically to avoid circular dependency
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useAuthStore } = require("@/hooks/useAuthStore");
-  return useAuthStore.getState();
+const getAuthStore = () => {
+  return authStore.getState();
 };
 
 // Function to clear auth data

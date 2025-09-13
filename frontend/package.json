@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ark-ui/react": "^5.23.0",
     "@chakra-ui/react": "^3.26.0",
     "@emotion/react": "^11.14.0",
     "@tanstack/react-query": "^5.87.4",
@@ -17,6 +18,9 @@
     "next-themes": "^0.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hot-toast": "^2.6.0",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.9.1",
     "zustand": "^5.0.8",
     "zustand-computed": "^2.1.0"
   },

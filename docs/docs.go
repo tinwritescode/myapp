@@ -296,6 +296,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/urls/public": {
+            "post": {
+                "description": "Create a new short URL without authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "urls"
+                ],
+                "summary": "Create Public URL",
+                "parameters": [
+                    {
+                        "description": "URL creation details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/url.CreateURLRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/url.CreateURLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.ValidationErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/common.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/urls/{id}": {
             "get": {
                 "description": "Get a specific URL by ID",
@@ -472,81 +518,6 @@ const docTemplate = `{
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/common.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users": {
-            "get": {
-                "description": "Get users",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Get users",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search term",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by active status",
-                        "name": "is_active",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "default": "created_at",
-                        "description": "Sort field",
-                        "name": "sort_by",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "asc",
-                            "desc"
-                        ],
-                        "type": "string",
-                        "default": "desc",
-                        "description": "Sort direction",
-                        "name": "sort_dir",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/user.GetUsersResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/common.ValidationErrorResponse"
                         }
                     }
                 }
@@ -848,6 +819,8 @@ const docTemplate = `{
                 },
                 "short_code": {
                     "type": "string",
+                    "maxLength": 8,
+                    "minLength": 3,
                     "example": "abc123"
                 }
             }
@@ -1060,62 +1033,6 @@ const docTemplate = `{
                 },
                 "success": {
                     "type": "boolean"
-                }
-            }
-        },
-        "user.GetUsersResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.UserResponse"
-                    }
-                },
-                "error": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "pagination": {
-                    "$ref": "#/definitions/common.Pagination"
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "user.UserResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
-                },
-                "email": {
-                    "type": "string",
-                    "example": "user@example.com"
-                },
-                "full_name": {
-                    "type": "string",
-                    "example": "John Doe"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2024-01-01T12:00:00Z"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "johndoe"
                 }
             }
         }

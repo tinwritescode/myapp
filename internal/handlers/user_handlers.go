@@ -6,71 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tinwritescode/myapp/internal/dto/auth"
 	"github.com/tinwritescode/myapp/internal/dto/common"
-	"github.com/tinwritescode/myapp/internal/dto/user"
 	"github.com/tinwritescode/myapp/internal/middleware"
 	"github.com/tinwritescode/myapp/internal/service"
-	"github.com/tinwritescode/myapp/pkg/utils"
 )
 
 func getUserService() service.UserService {
 	return service.GetUserService()
-}
-
-// @Summary Get users
-// @Description Get users
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(10)
-// @Param search query string false "Search term"
-// @Param is_active query bool false "Filter by active status"
-// @Param sort_by query string false "Sort field" default(created_at)
-// @Param sort_dir query string false "Sort direction" Enums(asc, desc) default(desc)
-// @Success 200 {object} user.GetUsersResponse
-// @Failure 400 {object} common.ValidationErrorResponse
-// @Router /users [get]
-func GetUsers(c *gin.Context) {
-	var req user.GetUsersRequest
-	if !middleware.BindQuery(c, &req) {
-		return
-	}
-
-	userService := getUserService()
-	users, total, err := userService.GetUsers(req.Page, req.Limit, &req.Search, req.IsActive, req.SortBy, req.SortDir)
-	if err != nil {
-		if appErr, ok := err.(*common.AppError); ok {
-			c.JSON(http.StatusInternalServerError, common.NewErrorResponseWithCode(appErr.Code, appErr.Message))
-		} else {
-			c.JSON(http.StatusInternalServerError, common.NewErrorResponse(err.Error()))
-		}
-		return
-	}
-
-	// Map to user response
-	userResponses := make([]user.UserResponse, len(users))
-	for i, u := range users {
-		userResponses[i] = u.ToResponse()
-	}
-
-	totalPages := utils.CalculateTotalPages(int(total), req.Limit)
-	response := user.GetUsersResponse{
-		PaginatedResponse: common.PaginatedResponse{
-			BaseResponse: common.BaseResponse{
-				Success: true,
-				Message: "Users retrieved successfully",
-			},
-			Pagination: common.Pagination{
-				Page:       req.Page,
-				Limit:      req.Limit,
-				Total:      total,
-				TotalPages: totalPages,
-			},
-		},
-		Data: userResponses,
-	}
-
-	c.JSON(http.StatusOK, response)
 }
 
 // @Summary Register user
