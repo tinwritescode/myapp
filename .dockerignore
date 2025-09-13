@@ -1,0 +1,55 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+docs/
+
+# Build artifacts
+bin/
+tmp/
+*.log
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node modules (if any)
+node_modules/
+
+# Test files
+*_test.go
+tests/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Frontend (if building backend only)
+frontend/
+
+# Seeds and migrations (if not needed in container)
+seeds/
+
+# Requests (API testing files)
+requests/
+
+# Makefile and build scripts
+Makefile
+build.sh
