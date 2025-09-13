@@ -3,7 +3,8 @@ import { authStore } from "@/hooks/useAuthStore";
 
 // Create axios instance
 export const api = axios.create({
-  baseURL: "http://localhost:8080/api/v1",
+  baseURL:
+    import.meta.env.VITE_API_URL || "https://myapp-1757744589.fly.dev/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
@@ -32,7 +33,10 @@ const refreshAccessToken = async () => {
 
   try {
     const response = await axios.post(
-      "http://localhost:8080/api/v1/auth/refresh",
+      `${
+        import.meta.env.VITE_API_URL ||
+        "https://myapp-1757744589.fly.dev/api/v1"
+      }/auth/refresh`,
       {
         refresh_token: refreshToken,
       }

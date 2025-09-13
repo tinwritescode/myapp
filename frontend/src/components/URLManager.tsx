@@ -197,7 +197,8 @@ export function URLManager() {
 
   // Get short URL
   const getShortURL = (shortCode: string) => {
-    return `${window.location.origin}/${shortCode}`;
+    const baseURL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'https://myapp-1757744589.fly.dev';
+    return `${baseURL}/${shortCode}`;
   };
 
   if (error) {
