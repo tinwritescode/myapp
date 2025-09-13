@@ -30,7 +30,7 @@ primary_region = "iad"
 [[vm]]
   cpu_kind = "shared"
   cpus = 2
-  memory_mb = 256
+  memory_mb = 512
 
 [deploy]
   release_command = "echo 'Deployment completed'"
